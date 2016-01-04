@@ -3,5 +3,5 @@
 
 golang package to deal with stringset defined as `map[string]interface{}`
 
-It offers simple operations like Union, Intersection, etc. Read the [documentation](https://godoc.org/github.com/etnz/stringset) for more details.
+It offers simple operations like Union, Intersection, Pop, Peek, Sub,  etc. Read the [documentation](https://godoc.org/github.com/etnz/stringset) for more details.
 
