@@ -1,14 +1,16 @@
 // Package stringset offers various tools to manipulate set of strings
 //
-// A stringset is represented as a map[string]interface{} where we do not make any assumption on the content of interface{}
+// A stringset is represented as a map[string]struct{}
 package stringset
 
 import "sort"
 
+var zzz = struct{}{}
+
 //Clone a set
 //
-func Clone(set map[string]interface{}) (clone map[string]interface{}) {
-	clone = make(map[string]interface{})
+func Clone(set map[string]struct{}) (clone map[string]struct{}) {
+	clone = make(map[string]struct{})
 	for k, v := range set {
 		clone[k] = v
 	}
@@ -16,7 +18,7 @@ func Clone(set map[string]interface{}) (clone map[string]interface{}) {
 }
 
 //Sort returns a sorted slice of all elements in the set
-func Sort(set map[string]interface{}) (sorted []string) {
+func Sort(set map[string]struct{}) (sorted []string) {
 	sorted = make([]string, 0, len(set))
 	for k := range set {
 		sorted = append(sorted, k)
@@ -26,13 +28,13 @@ func Sort(set map[string]interface{}) (sorted []string) {
 }
 
 //Contains returns true if the 'element' is contained in the set
-func Contains(set map[string]interface{}, element string) bool {
+func Contains(set map[string]struct{}, element string) bool {
 	_, exists := set[element]
 	return exists
 }
 
 //ContainsAny returns true if any of the 'elements' are contained in the set
-func ContainsAny(set map[string]interface{}, elements ...string) bool {
+func ContainsAny(set map[string]struct{}, elements ...string) bool {
 	for _, e := range elements {
 		if _, exists := set[e]; exists {
 			return true
@@ -42,7 +44,7 @@ func ContainsAny(set map[string]interface{}, elements ...string) bool {
 }
 
 //ContainsAll returns true if all  'elements' are contained in the set
-func ContainsAll(set map[string]interface{}, elements ...string) bool {
+func ContainsAll(set map[string]struct{}, elements ...string) bool {
 	for _, e := range elements {
 		if _, exists := set[e]; !exists {
 			return false
@@ -52,30 +54,30 @@ func ContainsAll(set map[string]interface{}, elements ...string) bool {
 }
 
 //Union all 'src' together into 'dst'
-func Union(src ...map[string]interface{}) (dst map[string]interface{}) {
-	dst = make(map[string]interface{})
+func Union(src ...map[string]struct{}) (dst map[string]struct{}) {
+	dst = make(map[string]struct{})
 	Append(dst, src...)
 	return
 }
 
 //Append the Union of 'src' into 'dst'.
-func Append(dst map[string]interface{}, src ...map[string]interface{}) {
+func Append(dst map[string]struct{}, src ...map[string]struct{}) {
 	for _, source := range src {
-		for k, v := range source {
-			dst[k] = v
+		for k := range source {
+			dst[k] = zzz
 		}
 	}
 }
 
 //Inter computes the intersection of 'src' into 'inter'
-func Inter(src ...map[string]interface{}) (inter map[string]interface{}) {
+func Inter(src ...map[string]struct{}) (inter map[string]struct{}) {
 	// for each source check if exists the other one
-	inter = make(map[string]interface{})
+	inter = make(map[string]struct{})
 	// peak one set (the first one at random)
 	if len(src) == 0 {
 		return // empty inter
 	}
-	scanner := src[0] // a better solution would be to find the smaller one
+	scanner, src := src[0], src[1:] // a better solution would be to find the smaller one
 
 Scanning: // label to continue the scan loop
 	for element := range scanner { // for each element in one of the sets
@@ -87,14 +89,14 @@ Scanning: // label to continue the scan loop
 			}
 		}
 		// the element obviously exists in all the sources !
-		inter[element] = nil // add it
+		inter[element] = zzz // add it
 	}
 	return
 }
 
 // Equals return true if all sets are equals.
 // if there are no sets, return true too.
-func Equals(sets ...map[string]interface{}) bool {
+func Equals(sets ...map[string]struct{}) bool {
 	if len(sets) == 0 {
 		return true
 	}
@@ -102,12 +104,13 @@ func Equals(sets ...map[string]interface{}) bool {
 	size := len(sets[0]) // to start
 	for _, set := range sets {
 		if len(set) != size {
-			return false // set with different size cannot be equal, never
+			return false // sets with different size cannot be equal, never
 		}
 	}
 
 	// now I now, that I have to scan one set (let's select the first)
-	for key := range sets[0] {
+	scan, sets := sets[0], sets[1:]
+	for key := range scan {
 
 		// this key must be in all the other one
 		for _, set := range sets {
@@ -121,14 +124,14 @@ func Equals(sets ...map[string]interface{}) bool {
 }
 
 //Sub remove all element in 'diff' out of 'src'
-func Sub(src, diff map[string]interface{}) {
+func Sub(src, diff map[string]struct{}) {
 	for v := range diff {
 		delete(src, v)
 	}
 }
 
 //Peek select one random value from 'set'
-func Peek(set map[string]interface{}) string {
+func Peek(set map[string]struct{}) string {
 	for v := range set {
 		return v
 	}
@@ -136,7 +139,7 @@ func Peek(set map[string]interface{}) string {
 }
 
 //Pop select one random value from  'set', and remove it
-func Pop(set map[string]interface{}) string {
+func Pop(set map[string]struct{}) string {
 	for v := range set {
 		delete(set, v)
 		return v
@@ -145,10 +148,10 @@ func Pop(set map[string]interface{}) string {
 }
 
 //New creates a new set from a list of values
-func New(val ...string) map[string]interface{} {
-	res := make(map[string]interface{}, len(val))
+func New(val ...string) map[string]struct{} {
+	res := make(map[string]struct{}, len(val))
 	for _, v := range val {
-		res[v] = nil
+		res[v] = zzz
 	}
 	return res
 }

@@ -11,7 +11,7 @@ func TestClone(t *testing.T) {
 	if !Equals(set, clone) {
 		t.Errorf("Invalid Clone: clones are expected to be equals %v, %v", set, clone)
 	}
-	set["d"] = nil // append some stuff
+	set["d"] = zzz // append some stuff
 	if Equals(set, clone) {
 		t.Errorf("Invalid Clone: clones are expected to be independent %v, %v", set, clone)
 	}
